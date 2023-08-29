@@ -273,3 +273,12 @@ module.exports = {
 }
 ```
 
+**在根目录下新建babel.config.js文件**
+
+```js
+module.exports = {
+    // 声明 babel 可以的插件
+    plugins: [["@babel/plugin-proposal-decorators", {legacy: true}]]
+}
+```
+

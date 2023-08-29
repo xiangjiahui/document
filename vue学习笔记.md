@@ -1,10 +1,10 @@
 # Vue学习笔记
 
-## 基础
+# 基础
 
-### 1、前端工程化
+## 1、前端工程化
 
-#### 代码目录和webpack安装
+### 代码目录和webpack安装
 
 **代码目录结构**
 
@@ -22,18 +22,16 @@ npm init -y
 npm i jquery
 下载webpack和webpack-cli  
 npm i webpack webpack-cli --save-dev
---save-dev 的含义,表示这两个依赖规划到一下配置里,只在开发环境中用到
+--save-dev 的含义,表示这两个依赖规划到以下配置里,只在开发环境中用到
 "devDependencies": {
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4"
   }
 ```
 
-#### webpack的基本使用
+### webpack的基本使用
 
-
-
-##### 	webpack的初始化配置
+#### 	webpack的初始化配置
 
 ​		**在项目中配置webpack**
 
@@ -70,7 +68,7 @@ npm run dev
 
 
 
-##### webpack的其它配置
+#### webpack的其它配置
 
 ​	**自定义打包的入口与出口**
 
@@ -91,9 +89,9 @@ module.exports = {
 
 
 
-##### webpack中插件的使用
+#### webpack中插件的使用
 
-###### 	webpack-dev-server
+##### 	webpack-dev-server
 
 ​	这个插件相当于nodejs中的nodemon，类似于热部署，每次修改了代码就不需要再重新打包
 
@@ -141,9 +139,13 @@ module.exports = {
 }
 ```
 
-###### 	html-webpack-plugin
+##### 	html-webpack-plugin
 
 ​	**这个插件和webpack-dev-server插件配合一起使用**
+
+​		使用了这个插件之后，就可以实现打开浏览器就访问到了index.html，而不用在去访问src目录才能访问到index.html
+
+​		原理是使用这个插件将index.html文件复制一份到项目的根目录下
 
 ​	**安装插件**
 
@@ -183,22 +185,27 @@ module.exports = {
 
 ​		css-loader 打包处理css文件、less-loader 打包处理less文件、babel-loader 打包处理高级JS语法
 
-###### 	使用loader
+##### 	使用loader
+
+###### 		**处理css的loader**
 
 ​		**安装loader**
 
 ```js
-npm i style-loader css-loader -D
+npm i style-loader css-loader less-loader less -D
 ```
 
 ​		**在webpack.config.js文件中添加配置**
 
 ```js
 module.exports = {
+    // 所有第三方文件模块的匹配规则
     module: {
+        // 文件后缀名的匹配规则
         rules: [
             // test 表示匹配的文件类型，use 表示要调用的loader
-            { test: /\.css$/,use: ["style-loader","css-loader"] }
+            { test: /\.css$/,use: ["style-loader","css-loader"] },
+            { test: /\.less$/,use: ["style-loader","css-loader","less-loader"] }
         ]
     }
 }
@@ -208,5 +215,61 @@ module.exports = {
 
 ```js
 import "./css/index.css"
+```
+
+​	
+
+###### **加载图片的loader**
+
+​	**安装loader**
+
+```js
+npm i url-loader file-loader
+```
+
+​	**在webpack.config.js文件中添加配置**
+
+```js
+module.exports = {
+    module: {
+        rules: [
+            // limit用来指定图片的大小，单位是字节(byte)
+            // 只有<= limit大小的图片，才会被转为base64格式的图片
+            {test: /\.jpg|png|gif|ico$/, use: "url-loader?limit=22229"}
+        ]
+    }
+}
+```
+
+​	**在index.js中使用**
+
+```js
+// 先导入图片
+import logo from "./images/logo.ico"
+// 给图片赋予src属性
+$(".box").prop("src",logo);
+```
+
+
+
+###### **处理高级js的loader**
+
+**安装loader**
+
+```js
+npm i babel-loader @babel/core @babel/plugin-proposal-decorators -D
+```
+
+**在webpack.config.js文件中添加配置**
+
+```js
+module.exports = {
+    module: {
+        rules: [
+            // 必须使用 exclude 指定排除项,因为 node_modules 目录下的第三方包不需要被打包
+            {test: /\.js$/, use: "babel-loader",exclude: /node_modules/}
+        ]
+    }
+}
 ```
 

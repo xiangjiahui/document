@@ -282,3 +282,80 @@ module.exports = {
 }
 ```
 
+
+
+### 打包发布
+
+​	**配置package.json文件**
+
+```js
+"scripts": {
+    "dev": "webpack serve", // 开发环境中运行dev命令
+    "build": "webpack --mode production" // 项目发布时，运行build命令
+  }
+```
+
+​	**clean-webpack-plugin插件**
+
+​	每次打包或者开发环境运行时，回自动删除dist目录，不用手动删除
+
+```js
+// 先安装
+npm i clean-webpack-plugin
+
+// 在webpack.config.js文件中使用插件
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
+plugins: [htmlPlugin,new CleanWebpackPlugin()]
+```
+
+
+
+#### 详细webpack.config.js配置文件
+
+```js
+const path = require("path");
+
+const HtmlPlugin = require("html-webpack-plugin");
+
+// 创建Html插件的实例对象
+const htmlPlugin = new HtmlPlugin({
+    // 指定原文件的路径
+    template: "./src/index.html",
+    // 指定生成的文件路径
+    filename: "./index.html"
+});
+
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
+
+module.exports = {
+    // 开发阶段配置这个选项能保证报错的信息根原代码的行数一致,方便调试,并且安全，只暴露行数，不暴露源码
+    devtool: "nosources-source-map",
+    mode: "development",
+    // 指定要处理的入口文件
+    entry: path.join(__dirname, "./src/index.js"),
+    output: {
+        // 指定路径
+        path: path.join(__dirname, "dist"),
+        // 指定生成的文件名,指定打包时,js存放路径
+        filename: "js/bundle.js"
+    },
+    devServer: {
+        open: false,
+        host: "localhost",
+        port: 80,
+        static: "./"
+    },
+    plugins: [htmlPlugin,new CleanWebpackPlugin()],
+    module: {
+        rules: [
+            // test 表示匹配的文件类型，use 表示要调用的loader
+            {test: /\.css$/, use: ["style-loader", "css-loader"]},
+            // 加上outputPath=images参数,指定打包时图片存放路径 "url-loader?limit=22229&outputPath=images"
+            // limit的值太大，打包时不会生成images文件夹
+            {test: /\.jpg|png|gif|ico$/, use: "url-loader?limit=47&outputPath=images"},
+            // 必须使用 exclude 指定排除项,因为 node_modules 目录下的第三方包不需要被打包
+            {test: /\.js$/, use: "babel-loader",exclude: /node_modules/}
+        ]
+    }
+}
+```

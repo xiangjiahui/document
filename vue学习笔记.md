@@ -356,6 +356,13 @@ module.exports = {
             // 必须使用 exclude 指定排除项,因为 node_modules 目录下的第三方包不需要被打包
             {test: /\.js$/, use: "babel-loader",exclude: /node_modules/}
         ]
+    },
+    // 配置这个是为了在使用import导入的时候, 用@来导入, @代表 src,这样导入的时候就是从外往里找,结构清晰
+    // import logo from "@/images/logo.ico"
+    resolve: {
+        alias: {
+            "@": path.join(__dirname,"./src/")
+        }
     }
 }
 ```

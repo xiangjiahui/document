@@ -1,8 +1,8 @@
 # Vue学习笔记
 
-# 基础
+# webpack
 
-## 1、前端工程化
+## 前端工程化
 
 ### 代码目录和webpack安装
 
@@ -366,3 +366,410 @@ module.exports = {
     }
 }
 ```
+
+
+
+
+
+# Vue
+
+## 概念
+
+**什么是vue**
+
+1. 构建用户界面
+2. 是一个前端的框架
+
+**vue的特性**
+
+1. 数据驱动视图
+
+   >数据驱动视图时单向的，永远是数据的变化回驱动视图自动更新
+
+   - 数据的变化会驱动视图自动更新
+   - 优点：编写代码时只需要把数据维护好，页面结构会被vue自动渲染出来
+
+2. 双向数据绑定
+   >在页面中，form表单负责<font color='red'>采集数据</font>，Ajax负责<font color='red'>提交数据</font>
+
+   - js数据的变化，会被自动渲染到页面上
+   - 页面上表单采集的数据发生变化的时候，会被**vue**自动获取并更新到js数据对象中
+
+> 数据驱动视图和双向数据绑定的底层原理都是MVVM，即Model-数据源、View-DOM结构、ViewModel-vue实例
+
+
+
+## 基础用法
+
+### 入门
+
+1. 先引入vue.js文件
+   ```js
+   <script src="../../lib/vue.js"></script>
+   ```
+
+2. 创建vue实例对象
+   ```js
+   // 创建vue实例对象
+       const vm = new Vue({
+           // el属性固定写法,表示当前vue实例要控制页面上的哪个区域,接收的值是一个css选择器
+           el: "#app",
+           data: {
+               username: "xjh",
+               user: {
+                   username: "xiangjiahui"
+               }
+           }
+       });
+   ```
+
+3. html中使用
+   ```html
+   <!-- 表示这个区域是vue接管的 -->
+   <!-- 页面访问数据的时候可以不用加$data,如果是最外层的数据,那么直接用key就可以获取值,如果再下层还有对象,就用obj.key获取-->
+   <div id="app">
+       {{ username }}<br>
+       {{ $data.username }}<br>
+       {{ $data.user.username }}<br>
+       {{ user.username }}<br>
+       {{ user }}<br>
+   </div>	
+   ```
+
+
+
+### 指令
+
+#### 内容渲染指令
+
+> 内容渲染指令是vue提供的模板语法，能够使用指令将数据填充到DOM元素的内部，有三种语法
+
+##### **v-text**
+
+> v-text指令可以将data数据填充到标签内部，但是会覆盖标签内部原有的值，所以此指令不能实现数据拼接的效果，只能整个覆盖
+
+**用法**
+
+```html
+<div id="app">
+    <!-- v-text指令可以将数据data的数据填充到p标签内部，如果标签内部本来有值，那么会被v-text渲染的值覆盖 -->
+    <p v-text="username"></p>
+    <p v-text="user.username">p标签</p>
+</div>
+
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            username: "xjh",
+            user: {
+                username: "xiangjiahui"
+            }
+        }
+    });
+</script>
+```
+
+
+
+##### 插值表达式{{  }}
+
+> {{  }} 这个语法叫插值表达式，专门用来解决v-text语法会覆盖值的问题
+
+**用法**
+
+```html
+<div id="app">
+    <p>姓名: {{ user.username }}</p>
+    <p>性别: {{ user.gender }}</p>
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            user: {
+                username: "xiangjiahui",
+                gender: "男"
+            }
+        }
+    });
+</script>
+```
+
+
+
+##### v-html
+
+> v-html语法可以将带有html标签的数据也渲染成真正的html元素到标签的内部
+
+**用法**
+
+```html
+<div id="app">
+    <p v-html="message"></p>
+</div>
+<script>
+    // 创建vue实例对象
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            message: "<h4 style='color: red;'>vue.js使用</h4>"
+        }
+    });
+</script>
+```
+
+
+
+#### 属性绑定指令
+
+##### v-bind:
+
+> v-bind: 属性绑定指令只能用于操作html元素的属性，可以简写为 :
+
+**用法**
+
+```html
+<div id="app">
+    <input type="text"  v-bind:placeholder="tips">
+    <br>
+    <img v-bind:src="photo" alt="" style="width: 50px;">
+    <!-- 简写形式 : -->
+    <img :src="photo" alt="" style="width: 50px;">
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            tips: "请输入内容",
+            photo: "https://cn.vuejs.org/logo.svg"
+        }
+    });
+</script>
+```
+
+**使用JS语法**
+
+> 在插值语法和v-bind: 语法中，可以编写js语句
+
+```html
+<div id="app">
+    <input type="text"  v-bind:placeholder="tips">
+    <br>
+    <img v-bind:src="photo" alt="" style="width: 50px;">
+    <img :src="photo" alt="" style="width: 50px;">
+
+    <!--还可以再插值语法和bind中使用js语法-->
+    <div>1 + 2 = {{ 1 + 2 }}</div>
+    <div>tips反转: {{ tips.split("").reverse().join("") }}</div>
+    <div :data-id="'data-id-' + id" :id="id"></div>
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            tips: "请输入内容",
+            photo: "https://cn.vuejs.org/logo.svg",
+            id: 1
+        }
+    });
+</script>
+```
+
+
+
+#### 事件绑定指令
+
+##### v-on:
+
+> v-on: 给html元素绑定事件，用法是v-on:事件类型，例如v-on:click。v-on:也可以简写为@
+
+**用法**
+
+```html
+<div id="app">
+    <p>{{ count }}</p>
+    <!-- 方法也可以直接写名称add，如果要传参数，那么就需要加上括号传递参数，还可以传递event，参数没有前后顺序 -->
+    <button v-on:click="add(5,$event)">增加</button>
+    <button v-on:mouseenter="">鼠标经过</button>
+    <!-- 简写形式 -->
+    <button @mouseenter="">鼠标经过</button>
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            count: 0
+        },
+        methods: {
+            add (n,e) {
+                this.count += n;
+            }
+        }
+    });
+</script>
+```
+
+**事件修饰符**
+
+```html
+<button @click.stop="add(5,$event)">增加</button>
+<button @click.prevent="add(5,$event)">增加</button>
+```
+
+**按键修饰符**
+
+> 使用按键修饰符，在input 绑定key事件时，不用每次都判断按下的键盘是什么
+
+```html
+<div id="app">
+    <input type="text" @keyup.enter="enter">
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        methods: {
+            enter() {
+                console.log("按下了enter键");
+            }
+        }
+    });
+</script>
+```
+
+
+
+#### 双向绑定指令
+
+##### v-model
+
+> 双向绑定指令，html元素的值发生变化会更新到对象数据，对象数据发生发生变化会更新到元素
+
+**用法**
+
+```html
+<div id="app">
+<input type="text" v-model="username">
+<select v-model="city">
+    <option value="">请选择</option>
+    <option value="北京">北京</option>
+    <option value="上海">上海</option>
+    <option value="天津">天津</option>
+</select>
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            username: "",
+            city: ""
+        }
+    });
+</script>
+```
+
+**v-model专有的指令修饰符**
+
+```html
+<!-- .number 自动将用户的输入值转为数值类型 -->
+<input type="text" v-model.number="username">
+
+<!-- .trim 自动过滤用户输入的首尾空白字符 -->
+<input type="text" v-model.trim="username">
+
+<!-- .lazy 在"change"时，而非"input"时更新 -->
+<input type="text" v-model.lazy="username">
+```
+
+
+
+#### 条件渲染指令
+
+##### v-if和v-show
+
+> 通过指令来控制元素的显示和隐藏，有两条指令
+
+1. **v-if**
+
+   > 满足条件为true，显示元素，否则隐藏，这个指令是通过动态的添加和删除元素实现效果，性能差，不过一般if使用多
+
+2. **v-show**
+
+   > 满足条件，即条件为true，显示元素，否则隐藏，这个指令是通过display来实现效果，性能好
+
+**用法**
+
+```html
+<div id="app">
+    <p v-if="show">v-if控制</p>
+    <p v-show="show">v-show控制</p>
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            show: true
+        }
+    });
+</script>
+```
+
+
+
+##### v-if的配套指令
+
+> 在vue中v-if条件指令也可以向if else 一样，进行分支选择的去渲染执行
+
+**用法**
+
+```html
+<div id="app">
+    <p v-if="grade >= 90">优秀</p>
+    <p v-else-if="grade >= 80">良好</p>
+    <p v-else-if="grade >= 70">一般</p>
+    <p v-else>及格</p>
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            grade: 90
+        }
+    });
+</script>
+```
+
+
+
+#### 列表渲染指令
+
+##### v-for
+
+> 要循环生成什么元素，就在什么元素上加上v-for指令，自身和其子元素都能访问到v-for里面循环的值
+
+**用法**
+
+```html
+<div id="app">
+    <ul>
+        <li v-for="(item,index) in users" :data-id="item.id">
+            <p>索引下标: {{ index }}</p>
+            <p>OID: {{ item.id }}</p>
+            <p>姓名: {{ item.name }}</p>
+        </li>
+    </ul>
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            users: [
+                {id: 1, name: "xiangjiahui"},
+                {id: 2, name: "renchunxiu"},
+                {id: 3, name: "xiangyuansui"}
+            ]
+        }
+    });
+</script>
+```
+

@@ -773,3 +773,102 @@ module.exports = {
 </script>
 ```
 
+> vue官方建议，使用v-for指令时，一定要绑定一个key属性，尽量把id作为key值，并且key值类型只能是字符串或者数字类型
+
+```html
+<li v-for="(item,index) in users" :data-id="item.id" :key="item.id">
+            <p>索引下标: {{ index }}</p>
+            <p>OID: {{ item.id }}</p>
+            <p>姓名: {{ item.name }}</p>
+</li>
+```
+
+
+
+### 过滤器
+
+#### 基本用法
+
+```html
+<div id="app">
+    <!-- 值是过滤器返回的值，msgFilter 是过滤器的名称 -->
+    <div>message过滤的结果是: {{ msg | msgFilter }}</div>
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            msg: "hello vue.js"
+        },
+        // 定义过滤器函数，必须被定义到filters节点之下
+        // 过滤器本质上是函数，过滤器一定要有返回值，在filters节点下定义的过滤器是私有过滤器
+        filters: {
+            // 过滤器函数形参中的val，永远都是"管道符"前面的那个值，{{ msg | msgFilter }} 也就是 msg
+            msgFilter(val) {
+                const msgArr = val.split(" ");
+                // slice方法截取字符串，从指定索引截取到最后
+                const head = msgArr[0].charAt(0).toUpperCase() + msgArr[0].slice(1);
+                const other = msgArr[1].charAt(0).toUpperCase() + msgArr[1].slice(1);
+                return head +" " + other;
+            }
+        }
+    });
+</script>
+```
+
+
+
+#### 全局过滤器
+
+> 可以new多个vue实例，定义全局过滤器，多个vue实例就不用重复定义私有的过滤器，所有的vue实例都可以使用全局过滤器
+>
+> 还可以连续的调用多个过滤器: {{ msg | filterA | filterB  }}
+
+**用法**
+
+```html
+<div id="app">
+    <div>message过滤的结果是: {{ msg | msgFilter }}</div>
+</div>
+
+<div id="app2">
+    <div>message过滤的结果是: {{ msg | msgFilter }}</div>
+</div>
+<script>
+    // 定义全局过滤器，参数1: 过滤器名称  参数2: 过滤器方法，和私有过滤器一样，同样可以获得"管道符"前面的那个值
+    // 如果全局过滤器和私有过滤器名称重复，采取就近原则，优先调用的是私有的过滤器
+    Vue.filter("msgFilter",function (str) {
+        const msgArr = str.split(" ");
+        const head = msgArr[0].charAt(0).toUpperCase() + msgArr[0].slice(1);
+        const other = msgArr[1].charAt(0).toUpperCase() + msgArr[1].slice(1);
+        return head +" " + other + "----global";
+    });
+
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            msg: "hello vue.js"
+        },
+        filters: {
+            msgFilter(val) {
+                const msgArr = val.split(" ");
+                const head = msgArr[0].charAt(0).toUpperCase() + msgArr[0].slice(1);
+                const other = msgArr[1].charAt(0).toUpperCase() + msgArr[1].slice(1);
+                return head +" " + other;
+            }
+        }
+    });
+    const vm2 = new Vue({
+        el: "#app2",
+        data: {
+            msg: "hello vue.js"
+        }
+    });
+</script>
+```
+
+
+
+### 侦听器
+
+> 监视data里的数据的变化，如果数据发生了变化就可以在侦听器里做一些操作

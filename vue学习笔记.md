@@ -972,3 +972,58 @@ const vm = new Vue({
 </script>
 ```
 
+
+
+### 计算属性
+
+> 计算属性指的是通过一系列的运算之后，最终得到的一个属性值，这个属性值可以被模板结构或methods里面的方法使用
+>
+> 所有的计算属性，都要绑定到computed节点之下，在定义的时候，要定义成方法格式，但是在使用中要当成属性去用，
+>
+> 因为在实际的vue实例中，定义的计算属性就是一个属性
+
+**用法**
+
+```html
+<div id="app">
+    R:<input type="text"  v-model.number="r"><br>
+    G:<input type="text"  v-model.number="g"><br>
+    B:<input type="text"  v-model.number="b"><br>
+    <hr>
+    <div class="box" :style="{backgroundColor: getRGB}">
+        {{ getRGB }}
+    </div>
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            r: "",
+            g: "",
+            b: ""
+        },
+        computed: {
+            getRGB() {
+                return `rgb(${this.r},${this.g},${this.b})`;
+            }
+        }
+
+    })
+</script>
+```
+
+#### axios技巧
+
+```js
+// 可以利用解构，直接获取到axios返回结果里面的真实数据
+async function test() {
+    // { data } 这是解构，直接拿到返回结果的data，也就是真实的数据
+    // { data: res } 在data后面加上 : res 是将data重命名的意思
+    const { data: res } = await axios.get("...");
+    const code = res.code;
+}
+```
+
+
+
+## vue-cli

@@ -871,4 +871,104 @@ module.exports = {
 
 ### 侦听器
 
-> 监视data里的数据的变化，如果数据发生了变化就可以在侦听器里做一些操作
+> 监视data里的数据的变化，如果数据发生了变化就可以在侦听器里做一些操作，本质上是一个函数
+
+**用法**
+
+```html
+<div id="app">
+    <input type="text" v-model="username">
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            username: ""
+        },
+        watch: {
+            // newValue 新的值，oldValue 旧的值
+            // 要侦听什么，就以哪个属性名为方法名
+            username(newValue,oldValue) {
+                console.log("username发生了值变化");
+                console.log("新值:"+ newValue);
+                console.log("旧值:"+ oldValue);
+            }
+        }
+    })
+</script>
+```
+
+##### immediate选项
+
+> 将侦听器写成对象格式的，配置immediate属性，在页面刷新或者第一次进入页面时就能立即触发侦听器
+
+**用法**
+
+```js
+const vm = new Vue({
+        el: "#app",
+        data: {
+            username: "xjh"
+        },
+        watch: {
+            // username(newValue,oldValue) {
+            //     console.log("username发生了值变化");
+            //     console.log("新值:"+ newValue);
+            //     console.log("旧值:"+ oldValue);
+            // }
+            // 对象格式的侦听器
+            username: {
+                // 处理侦听器的函数
+                handler(newValue,oldValue) {
+                    console.log(newValue,oldValue);
+                },
+                // 配置这项属性,页面刷新或者第一次进入立即触发侦听器
+                immediate: true
+            }
+        }
+    })
+```
+
+##### deep深度监听
+
+> 如果监听的是一个对象，那么对象里面的数据发生了变化就不能被监听到，这时需要配置deep深度监听才能监听到对象值变化
+
+**用法**
+
+```html
+<div id="app">
+    <input type="text" v-model="info.msg">
+</div>
+<script>
+    const vm = new Vue({
+        el: "#app",
+        data: {
+            username: "xjh",
+            info: {
+                msg: ""
+            }
+        },
+        watch: {
+            info: {
+                // 这里的newVal 是监听的对象 info，而不是里面的msg属性
+                handler(newVal) {
+                    console.log(newVal.msg);
+                },
+                deep: true
+            },
+            // 如果想要直接监听到对象的子属性，就需要换一种写法，这种写法比上面的写法比较简单
+            "info.msg"(newVal) {
+                console.log(newVal);
+            },
+            // 或者另一种写法
+            "info.msg": {
+                handler(newVal) {
+                    console.log(newVal);
+                },
+                immediate: true
+            }
+        }
+    })
+</script>
+```
+

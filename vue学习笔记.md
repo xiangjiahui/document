@@ -1027,3 +1027,73 @@ async function test() {
 
 
 ## vue-cli
+
+> 通过使用vue-cli，就可以快速的构建基于webpack工程化的前端项目
+
+### 安装和使用
+
+> vue-cli是npm上的一个全局包，npm i -g 	-g即代表是全局包
+>
+> 直接在cmd命令工具框里输入npm i -g @vue/cli，安装完之后可以执行命令 vue -V，如果出现版本号，那么就代表安装成功
+>
+> 安装完成之后，进入对应的文件目录下，执行命令: vue create 项目的名称
+>
+> vue create vue-cli-basic
+
+```js
+// 执行vue create vue-cli-basic命令之后出现以下界面
+// 前面两项选择会自动安装对应的插件，最后一个选项是可以自定义安装哪些插件，一般选择最后一项
+Vue CLI v5.0.8
+? Please pick a preset: (Use arrow keys)
+> Default ([Vue 3] babel, eslint)
+  Default ([Vue 2] babel, eslint)
+  Manually select features
+
+
+// 选择Manually select features 选择之后出现以下界面
+// Linter / Formatter 代表安装代码风格的组件，会统一所有的代码风格，可以不选，按空格键来确认选与不选
+  Vue CLI v5.0.8
+? Please pick a preset: Manually select features
+? Check the features needed for your project: (Press <space> to select, <a> to toggle all, <i> to invert selection, and <enter> to proceed)
+>(*) Babel
+ ( ) TypeScript
+ ( ) Progressive Web App (PWA) Support
+ ( ) Router
+ ( ) Vuex
+ ( ) CSS Pre-processors
+ (*) Linter / Formatter
+ ( ) Unit Testing
+ ( ) E2E Testing
+
+// 选择完成之后按下enter键，出现以下界面，根据实际情况去选择vue的版本
+? Please pick a preset: Manually select features
+? Check the features needed for your project: Babel
+? Choose a version of Vue.js that you want to start the project with
+  3.x
+> 2.x
+
+// 确认版本之后按下enter键，出现以下界面
+// 这是代表将这些插件是独立建立一个配置文件还是写入到package.json文件里去
+// 一般是选择第一个选项 In dedicated config files，按下enter键确认
+? Please pick a preset: Manually select features
+? Check the features needed for your project: Babel
+? Choose a version of Vue.js that you want to start the project with 2.x
+? Where do you prefer placing config for Babel, ESLint, etc.? (Use arrow keys)
+> In dedicated config files
+  In package.json
+
+// 确认之后出现以下界面
+// 这是代表是否将这次的配置项保存为一个配置项，yes/no 都可
+? Please pick a preset: Manually select features
+? Check the features needed for your project: Babel
+? Choose a version of Vue.js that you want to start the project with 2.x
+? Where do you prefer placing config for Babel, ESLint, etc.? In dedicated config files
+? Save this as a preset for future projects? (y/N)
+
+// 如果选了y,那么就要为这个配置项命名
+? Save preset as:  // 写上命名
+
+// 命名完之后，就等待node安装项目即可
+// 安装完成之后，进入目录修改以下package.json文件里的配置，使用命令 npm run dev 启动项目
+
+```

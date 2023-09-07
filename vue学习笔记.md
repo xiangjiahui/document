@@ -1281,6 +1281,7 @@ Vue.component("Right",Right);
 <!-- 先定义一个Count.vue组件 -->
 <template>
   <!-- 因为自定义了init属性,所以这里绑定的是init属性,而不再是count属性 -->
+  <!-- 当通过this来获取init的值后，也可以这样写: count的值是: {{ count }}-->
   <p>count的值是: {{ init }}</p>
 </template>
 
@@ -1289,7 +1290,9 @@ export default {
   name: "Count",
   data() {
     return {
-      count: 0
+        // 可以通过this来获取init的值并且修改，因为props里面的是只读的
+      //count: 0
+        count: this.init
     }
   },
   // 自定义init属性
@@ -1305,5 +1308,19 @@ Vue.component("Count",Count);
 <Count init="6"></Count>
 <!-- Right.vue -->
 <Count init="9"></Count>
+```
+
+##### props属性的默认值
+
+> props可以设置默认值，需要将其定义为对象格式，而不是数组格式
+
+```js
+props: {
+    initA: {
+      default: 0
+    },
+    initB: {
+      default: 1
+}
 ```
 

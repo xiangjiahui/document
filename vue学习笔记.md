@@ -1097,3 +1097,213 @@ Vue CLI v5.0.8
 // 安装完成之后，进入目录修改以下package.json文件里的配置，使用命令 npm run dev 启动项目
 
 ```
+
+
+
+### 目录结构
+
+src文件夹下的目录构成
+
+```tex
+assets文件夹:	存放的是项目使用到的一些静态资源，例如css、图片或一些第三方库文件
+components文件夹:	存放的是封装好了的组件
+main.js:	是项目的入口文件，整个项目的运行，要先执行main.js
+App.vue:	是项目的根组件
+```
+
+
+
+### 替换根组件的使用
+
+#### 先定义组件
+
+```vue
+<!-- 首先在src目录下定义一个Test.vue组件 -->
+<!-- template 是组件里的模板结构 -->
+<!-- 在template中，只能有一个根节点，也就是说最外层只能有一个div或其它元素，其它的元素都要包裹在最外层根节点元素里面-->
+<template>
+  <div>
+    <p>这是自定义的Test.vue组件</p>
+    <p>{{ username }}</p>
+  </div>
+</template>
+<!-- script js语法都写在这个区域里 -->
+<script>
+// 默认导出，这是固定写法,只要是.vue 组件,都要用这种写法导出
+export default {
+  name: "Test",
+  //在.vue 组件中定义数据源,不能再向以前一样定义成{} 对象格式的,要定义成函数格式的,要进行return
+  //在.vue 组件中，除了数据源要定义成函数，其它的methods、filters、watch、computed还是定义成 {} 对象格式的
+  data() {
+    return {
+      username: "administrator"
+    }
+  }
+}
+</script>
+<!-- css样式区域 -->
+<style scoped>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+div {
+  margin: 50px auto;
+  width: 500px;
+}
+p:nth-child(1) {
+  font-size: 20px;
+  font-weight: 700;
+  color: aquamarine;
+}
+p:nth-child(2) {
+  font-weight: 700;
+  color: red;
+}
+</style>
+```
+
+#### main.js中引用
+
+```js
+import Vue from 'vue';
+import App from './App.vue';
+// 导入
+// 也可以这样写 import Test from "./Test.vue"
+import Test from "./Test";
+
+Vue.config.productionTip = false
+
+new Vue({
+  // 将原来的 h => h(App) 替换成 h => h(Test)
+  render: h => h(Test),
+}).$mount('#app')
+```
+
+
+
+### 组件的使用
+
+#### 定义组件
+
+```vue
+<!-- 在components目录下定义新的组件Left.vue -->
+<template>
+  <div id="root">
+    <h1>Left组件</h1>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Left"
+}
+</script>
+
+<style scoped>
+#root {
+  margin: 0;
+  padding: 0;
+  width: 300px;
+  height: 200px;
+  background-color: chocolate;
+}
+</style>
+```
+
+#### 引入和注册组件
+
+```vue
+<!-- 在App根组件里面导入Left.vue -->
+<script>
+// 导入组件，可以导入使用多个组件
+import Left from "@/components/Left"
+import Right from "@/components/Left"    
+export default {
+  name: 'App',
+  // 注册组件，标准写法应该是 key: value --->  "Left": Left, 如果完全相同，则直接写即可
+  components: {
+    Left,
+    Right
+  }
+}
+</script>
+```
+
+#### 使用组件
+
+```vue
+<!-- 在App.vue 中的template中使用组件，将其作为标签来使用 -->
+<template>
+  <div id="app">
+    <h1>App根组件</h1>
+    <hr style="border-color: red">
+
+    <div id="box">
+      <!-- 以标签的形式使用组件 -->
+      <Left></Left>
+      <Right></Right>
+    </div>
+  </div>
+</template>
+```
+
+#### 全局注册组件
+
+> 使用全局注册组件，如果一个组件频繁的被使用，那么就不要频繁的去私有注册组件
+
+```vue
+<!-- 在main.js中全局注册组件 -->
+import Left from "@/components/Left"
+import Right from "@/components/Right"
+
+Vue.component("Left",Left);
+Vue.component("Right",Right);
+
+<!-- 使用组件 -->
+<div id="box">
+      <!-- 以标签的形式使用组件 -->
+      <Left></Left>
+      <Right class="right"></Right>
+</div>
+```
+
+#### 组件的props属性
+
+> props是组件的自定义属性，在封装通用组件的时候，合理的使用props属性可以极大的提高组件的复用性
+>
+> 概念: 一个组件中有一个属性，这个组件被其它多个组件调用，但是调用的每个组件使用被调用的那个组件里的属性时，都希望能
+>
+> 自定义那个被调用的属性的值
+
+```vue
+<!-- 先定义一个Count.vue组件 -->
+<template>
+  <!-- 因为自定义了init属性,所以这里绑定的是init属性,而不再是count属性 -->
+  <p>count的值是: {{ init }}</p>
+</template>
+
+<script>
+export default {
+  name: "Count",
+  data() {
+    return {
+      count: 0
+    }
+  },
+  // 自定义init属性
+  props: ["init"]
+}
+</script>
+<!-- 然后再main.js中注册Count.vue组件 -->
+import Count from "@/components/Count";
+Vue.component("Count",Count);
+
+<!-- 最后在Left和Right组件中使用 -->
+<!-- Left.vue -->
+<Count init="6"></Count>
+<!-- Right.vue -->
+<Count init="9"></Count>
+```
+

@@ -1384,9 +1384,11 @@ props: {
   mounted() {
   },
   // 运行阶段的第一个生命周期函数,运行之前
+  // 根据最新的数据重新渲染DOM结构，这个时候数据已经是最新的，但是DOM结构还不是最新的
   beforeUpdate() {
   },
   // 运行阶段的第二个生命周期函数,正在运行
+  // 这个时候的数据和DOM结构都已经是最新的
   updated() {
   },
   // 销毁阶段的第一个生命周期函数,销毁之前
@@ -1395,5 +1397,120 @@ props: {
   // 销毁阶段的第二个生命周期函数,已经销毁
   destroyed() {
   }
+```
+
+
+
+### 组件之间的数据共享
+
+> 在项目中，组件之间最常见的关系就是父子和兄弟关系
+
+#### 父组件向子组件共享数据
+
+> 父组件向子组件共享数据，使用自定义属性props属性即可，即在子组件中定义props自定义属性，然后父组件在使用子组件时，将自己data中的属性通过props属性传递给子组件
+
+```vue
+<!-- 父组件 -->
+<template>
+  <Son :init="num"></Son>
+</template>
+<script>
+export default {
+  name: "App",
+  data() {
+      return {
+          num: 1
+      }
+  }
+}
+</script>
+
+
+<!-- 子组件Son.vue，这样父组件传递过来的值就是父组件的num的值，也就是1 -->
+<template>
+  <p>父组件传递过来的count的值是: {{ init }}</p>
+</template>
+<script>
+export default {
+  name: "Count",
+  // 自定义init属性
+  // props: ["init"]
+  props: {
+    init: {
+      default: 0,
+      type: Number,
+      required: true
+    }
+  }
+}
+</script>
+```
+
+#### 子组件向父组件共享数据
+
+> 子组件向父组件共享数据用到了自定义事件$emit() 方法
+
+**父组件App.vue**
+
+```vue
+<template>
+  <div id="app">
+    <h1>App组件</h1>
+    <h3>来自子组件Son.vue的值count:{{ countFrom }}</h3>
+    <hr>
+    <!-- 在子组件标签上绑定事件,必须要和子组件那边$emit()方法的第一个参数名称一致 -->
+    <Son @numchange="getNumFrom"></Son>
+  </div>
+</template>
+<script>
+import Son from "@/components/Son";
+export default {
+  name: 'App',
+  components: {
+    Son
+  },
+  data() {
+    return {
+      countFrom: 0
+    }
+  },
+  methods: {
+    // 这里的参数val就是子组件传递过来的值
+    getNumFrom(val) {
+      this.countFrom = val;
+    }
+  }
+}
+</script>
+```
+
+**子组件Son.vue**
+
+```vue
+<template>
+<div id="son-container">
+  <h1>子组件count的值:{{ count }}</h1>
+  <button @click="add">count+1</button>
+</div>
+</template>
+<script>
+export default {
+  name: "Son",
+  data() {
+    return {
+      count: 0
+    }
+  },
+  methods: {
+    add() {
+      this.count ++;
+      // 子组件给父组件共享数据
+      // $emit(para1,para2),两个参数,参数是父组件那边绑定的事件名称,也就是第一个参数必须要和父组件那边绑定的事件名称一致
+      // 第二个参数就是要传给父组件的数据
+      this.$emit("numchange",this.count);
+    }
+  }
+}
+</script>
 ```
 

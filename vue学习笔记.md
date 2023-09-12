@@ -1514,3 +1514,140 @@ export default {
 </script>
 ```
 
+#### 兄弟组件之间的数据共享
+
+> 兄弟组件之间的数据共享通过eventBus.js来实现，主要是在这个js文件中定义一个vue实例然后导出，在通过导出的vue实例来实现
+
+##### 先定义eventBus.js文件
+
+```js
+import Vue from "vue";
+
+// new一个vue实例,然后导出,通过导出的vue实例来实现兄弟组件之间的数据共享
+export default new Vue();
+```
+
+##### 发送数据的组件
+
+```vue
+<!-- Son.vue组件发送数据 -->
+<template>
+<div id="son-container">
+  <button @click="send">点击将数据共享给C组件</button>
+</div>
+</template>
+
+<script>
+// 兄弟之间要想共享数据,首先要导入定义的eventBus组件
+import bus from "./eventBus.js";
+export default {
+  name: "Son",
+  data() {
+    return {
+      shareMsg: "千山鸟飞绝"
+    }
+  },
+  methods: {
+    send() {
+      // 兄弟组件之间共享数据,发送方使用$emit() 方法发送数据,同父子之间共享数据一致用法
+      // 通过导入的bus里面new 的vue实例来发送数据
+      bus.$emit("share",this.shareMsg);
+    }
+  }
+}
+</script>
+```
+
+##### 接收数据的组件
+
+```vue
+<!-- C.vue -->
+<template>
+  <div>
+    <p>C组件从Son组件接收到的数据是:{{ msg }}</p>
+  </div>
+</template>
+
+<script>
+// 兄弟组件接收数据,首先也要先导入定义的eventBus组件
+import bus from "@/components/eventBus.js";
+export default {
+  name: "C",
+  data() {
+    return {
+      msg: ""
+    }
+  },
+  created() {
+    // 固定用法,$on() 来接收数据, 回调函数里的参数就是发送发组件传递过来的数据,类似jq里的$().on("click",function() {});
+    bus.$on("share", (val) => {
+      this.msg = val;
+    });
+  }
+}
+</script>
+```
+
+
+
+### ref引用
+
+> ref用来辅助开发者在不依赖于jquery的情况下，获取DOM元素或组件的引用，在vue中也不推荐去安装和使用jquery
+>
+> ref不仅可以获取DOM元素，也可以获取vue组件，用法都是一样的
+
+#### 初步使用
+
+```vue
+<!-- HelloWorld.vue组件 -->
+<template>
+  <div class="hello">
+    <!-- 在DOM元素中定义ref属性，就像DOM元素的id，class一样，ref的值最好不要重复 -->
+    <h1 ref="title">{{ msg }}</h1>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'HelloWorld',
+  props: {
+    msg: String
+  },
+  mounted() {
+    // 使用$refs.名称去拿到对应的DOM元素，然后就可以去操作对应元素的样式了
+    this.$refs.title.style.color = "red";
+  }
+}
+</script>
+
+<!-- 在App.vue组件中操作HelloWorld.vue组件的属性和方法 -->
+<template>
+  <div id="app">
+    <img alt="Vue logo" src="./assets/logo.png">
+    <button @click="resetHello">重置HelloWorld组件的count值</button>
+    <HelloWorld msg="Welcome to Your Vue.js App" ref="hello"/>
+  </div>
+</template>
+
+<script>
+import HelloWorld from './components/HelloWorld.vue'
+
+export default {
+  name: 'App',
+  components: {
+    HelloWorld
+  },
+  methods: {
+    resetHello() {
+      // 通过refs获取到组件
+      const hello = this.$refs.hello;
+      // 操作组件的data的属性
+      // hello.count = 0;
+      // 调用组件的方法
+      hello.resetCount();
+    }
+  }
+}
+</script>
+```
+

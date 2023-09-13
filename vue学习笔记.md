@@ -1651,3 +1651,51 @@ export default {
 </script>
 ```
 
+#### $nextTick()的使用
+
+> 当数据发生改变的时候，DOM元素就会重新渲染，而一些代码就需要放在DOM元素被渲染完成之后才能正常执行，this.$nextTick(callback) 方法就能将代码延迟到DOM元素被渲染完成时才去执行，从而保证能获取到页面上最新的DOM元素
+
+```vue
+<script>
+export default {
+  name: 'HelloWorld',
+  methods: {
+    countAdd() {
+      this.count ++;
+    },
+    resetCount() {
+      this.count = 0;
+    },
+    show() {
+        // 只有页面渲染完成时才能获取到DOM，如果需要获取数据变化之后的DOM，所以就需要使用this.$nextTick(callback)方法
+        this.$nextTick(() => {
+            //todo
+        });
+    }
+  }
+}
+</script>
+```
+
+### 提高性能的数组方法
+
+```js
+// some() 方法，只要符合了筛选的条件就可以return true来终止循环
+const arr = [1,2,3,5,2,21,13];
+arr.some((item,index) => {
+    if(item === 2){
+        console.log(index);
+        return true;
+    }
+});
+//every() 方法，只有数组里的每一个元素都符合条件才会返回true，否则返回false
+const f = arr.every(item => item > 30);
+// 返回的是false
+
+
+//reduce() 方法，累加器
+// 语法格式: array.reduce((累加的值，循环项) => {}, 初始值);
+const res = arr.reduce((amount,item) => amount += item, 0);
+// 结果是1,2,3,5,2,21,13相加的结果: 47
+```
+

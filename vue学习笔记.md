@@ -1699,3 +1699,193 @@ const res = arr.reduce((amount,item) => amount += item, 0);
 // 结果是1,2,3,5,2,21,13相加的结果: 47
 ```
 
+
+
+### 动态组件
+
+> 组件也可以实现像DOM元素一样的去动态的显示和隐藏
+>
+> 利用vue提供的<component>标签就可以实现组件的动态渲染
+
+```vue
+<!-- is属性是用来指定组件名称，而用:绑定is，就可以动态的去切换组件的名称，以此来实现组件的动态渲染 -->
+<component :is="componentName"></component>
+```
+
+```vue
+<template>
+  <div id="app">
+    <img alt="Vue logo" src="./assets/logo.png">
+    <button @click="componentName = 'HelloWorld'">显示HelloWorld</button>
+    <button @click="componentName = ''">隐藏HelloWorld</button>
+    
+    <!-- 因为动态的去显示一个组件的话,那么这个组件就会被频繁的创建和销毁,组件里的数据也会重新初始化 -->
+    <!-- 所以使用vue提供的keep-alive标签去将需要动态展示的组件包裹起来,这样就会将里面的组件进行缓存
+         就算将其隐藏了也不会进行销毁,数据也不会被初始化
+     -->
+    <!-- include属性可以指定哪些组件被缓存,如果有多个,那么以英文格式的逗号分隔,传的值是注册的组件的名称
+         exclude属性可以指定哪些组件不被缓存,如果有多个,那么以英文格式的逗号分隔
+         但是这两个属性不能同时使用,只能二选一,一般使用include属性即可
+     -->
+    <keep-alive include="HelloWorld,componentName2" exclude="HelloWorld,componentName2">
+      <component :is="componentName"></component>
+    </keep-alive>
+  </div>
+</template>
+<script>
+import HelloWorld from './components/HelloWorld.vue'
+export default {
+  name: 'App',
+  components: {
+    HelloWorld
+  },
+  data() {
+    return {
+      componentName: "HelloWorld",
+      count: 0
+    }
+  }
+}
+</script>
+
+<!-- HelloWorld.vue -->
+<template>
+  <div class="hello">
+    <h1>HelloWorld组件</h1>
+    <button @click="num++">num+1</button>
+    <p>值:{{ num }}</p>
+  </div>
+</template>
+<script>
+export default {
+  name: 'HelloWorld',
+  data() {
+    return {
+      num: 0
+    }
+  },
+  // keep-alive 对应的生命周期函数,激活状态的函数
+  activated() {
+    console.log("组件被激活了,activated")
+  },
+  // keep-alive 对应的生命周期函数,缓存状态的函数
+  deactivated() {
+    console.log("组件被缓存了,deactivated")
+  }
+}
+</script>
+```
+
+
+
+### 插槽
+
+> 在封装组件的时候，可以预留一个插槽，允许组件的调用者在使用组件的时候插入自己自定义的内容
+
+```vue
+<template>
+  <div id="app">
+    <HelloWorld>
+    <!-- 在使用插槽的时候,外面要用template标签包括起来,在标签中使用v-slot:插槽名的方法,去指定调用的是哪个插槽
+             v-slot: 简写形式为 #,# 后面写插槽的name
+     -->
+      <template v-slot:slot1>
+        <p>这是组件调用者自定义的内容,这是插槽1</p>
+      </template>
+	  <!-- 接收插槽定义的属性值,接收到的是一个对象,这种使用方式叫作用域插槽，有name属性的插槽叫具名插槽 -->
+      <template #slot2="obj">
+        <p>这是组件调用者自定义的内容,这是插槽2</p>
+		<p>{{ obj.msg }}</p>
+      </template>
+    </HelloWorld>
+  </div>
+</template>
+
+<script>
+import HelloWorld from './components/HelloWorld.vue'
+export default {
+  name: 'App',
+  components: {
+    HelloWorld
+  }
+}
+</script>
+
+<!-- HelloWorld.vue -->
+<template>
+  <div class="hello">
+    <!-- 声明一个插槽 -->
+    <!-- 定义插槽的时候,必须以name属性给插槽命名 -->
+    <slot name="slot1">
+      这是插槽的默认内容,如果用户指定了内容,就会覆盖掉这块内容
+    </slot>
+    <!-- 在封装组件插槽的时候,可以定义一些属性和对应的值,在调用组件插槽的时候,能接收到这些数据,接收到的是一个对象 -->
+    <slot name="slot2" msg="hello vue.js"></slot>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'HelloWorld'
+}
+</script>
+```
+
+
+
+### 自定义指令
+
+> 在vue中，除了使用vue提供的指令，还可以自定义指令去使用，分为局部和全局的自定义指令
+
+#### 局部自定义指令
+
+> 局部自定义的指令实在vue组件里面定义，只能自己使用
+
+```vue
+<script>
+export default {
+  name: 'App',
+  // 自定义私有指令
+  directives: {
+    color: {
+      // element 是绑定指令的DOM对象
+      // binding 是指令后面绑定的值,是一个对象,例如 v-color="red",那么binding.value 就是red
+      // bind() 函数只有第一次绑定的时候才生效,也就是只有第一次被绑定的时候才会触发bind() 函数,每当DOM更新时不会触发
+      bind(element,binding) {
+        element.style.color = "red";
+      },
+      // 每次DOM更新时被调用,弥补了bind() 函数只被调用一次的不足
+      update(element,binding) {
+        element.style.color = binding.value;
+      }
+    },
+    // 如果bind函数和update函数逻辑完成相同,则自定义指令方法可以简写
+    // color(element,binding) {
+    //   element.style.color = binding.value;
+    // }
+  }
+}
+</script>
+```
+
+#### 全局自定义指令
+
+> 全局自定义指令是在main.js中定义，所有的组件都可以使用，有两种定义方式
+
+```js
+// 第一种定义方式
+Vue.directive("color",{
+  bind(element,binding) {
+
+  },
+  update(element,binding) {
+
+  }
+})
+
+// 第二种定义方式
+Vue.directive("color",function (element,binding) {
+
+})
+```
+

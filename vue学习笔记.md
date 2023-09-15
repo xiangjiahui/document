@@ -1889,3 +1889,89 @@ Vue.directive("color",function (element,binding) {
 })
 ```
 
+
+
+### vue中使用axios的优化
+
+> 在main.js中导入axios，并把axios挂载到vue的原型上，这样每个组件去使用axios的时候，就不用每个组件都需要去导入axios
+>
+> 并且在main.js中配置axios请求的根路径，这样去挂载有一个缺点，就是不利于API接口的复用
+
+```js
+// 先下载axios
+npm i axios -S
+// 在导入axios
+import axios from 'axios'
+
+// 把axios挂载到vue的原型上
+// 两种写法都可以，第一种写法是仿造vue的$emit()，$on() 等写法，为了标准化
+Vue.prototype.$http = axios;
+Vue.prototype.axios = axios;
+
+// 配置axios请求的根路径
+axios.defaults.baseURL = "xxxx"
+
+// 使用axios
+this.$http.get()
+// 第二种配置的写法
+this.axios.post()
+```
+
+
+
+### 路由
+
+#### 概念
+
+> 概念: 路由router，就是对应关系。也就是Hash地址与组件之间的对应关系。
+
+**前端路由的工作方式**
+
+1. 用户点击了页面上的路由链接(就是普通的a链接)
+2. 导致了URL地址栏中的==Hash==值发生了变化
+3. 前端路由监听到了Hash地址的变化
+4. 前端路由把当前Hash地址对应的组件渲染到浏览器中
+
+#### 安装和配置路由
+
+1. 安装路由
+
+   > 安装路由有两种方式
+
+   **第一种方式** 
+
+​		**手动去安装路由**
+
+```js
+// 可以在已经创建的vue项目里去手动安装路由
+// 先安装路由，也可以不指定版本
+npm i vue-router@3.5.2 -S
+
+// 安装完成之后，在src目录下新建一个router文件夹，在router文件夹下新建一个index.js
+// 编写index.js文件
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+
+// Vue.use() 方法，是将某个模块或其它的东西安装为vue项目的插件
+// 这里是将VueRouter安装为vue的插件
+Vue.use(VueRouter)
+
+// new 一个VueRouter实例
+const router = new VueRouter()
+// 导出VueRouter实例
+export default router
+
+// 最后在main.js中将VueRouter挂载到vue中
+// 先导入
+import router from './router'
+
+// 再挂载
+new Vue({
+  router,
+  render: h => h(App)
+}).$mount('#app')
+```
+
+​		**第二种方式**
+
+​		**使用vue-cli创建vue项目的时候，把VueRouter也加进去，项目创建完成之后，配置文件都已全部自动编写并且已经配置好了**

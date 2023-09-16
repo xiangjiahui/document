@@ -1934,11 +1934,11 @@ this.axios.post()
 
 #### 安装和配置路由
 
-1. 安装路由
+##### 安装路由
 
-   > 安装路由有两种方式
+> 安装路由有两种方式
 
-   **第一种方式** 
+**第一种方式** 
 
 ​		**手动去安装路由**
 
@@ -1975,3 +1975,138 @@ new Vue({
 ​		**第二种方式**
 
 ​		**使用vue-cli创建vue项目的时候，把VueRouter也加进去，项目创建完成之后，配置文件都已全部自动编写并且已经配置好了**
+
+
+
+##### 配置路由
+
+```js
+<!-- router/index.js -->
+// 配置路由规则，其实这里是应该写在 new VueRouter({ routes:[] })
+const routes = [
+  // 路由的重定向规则，当访问 / 地址的时候，就重定向跳转到about
+  {
+    path: '/',
+    redirect: '/about'
+  },
+  // 其实这里的配置就是相当于重定向,当访问 / 地址的时候,跳转到home
+  {
+    path: '/',
+    name: 'home',
+    component: HomeView
+  },
+  {
+    path: '/about',
+    name: 'about',
+    // component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    component: AboutView
+  }
+]
+const router = new VueRouter({
+  mode: 'history',
+  base: process.env.BASE_URL,
+  routes
+})
+```
+
+##### 使用路由
+
+```vue
+<!-- App.vue -->
+<!-- 使用router-link标签来取代a标签，to属性取代href属性，to属性里面的路径就是要跳转的路径，也是router/index.js里面配置好的路径 -->
+<router-link to="/">Home</router-link> |
+<router-link to="/about">About</router-link>
+<!-- router-view这个标签就相当于是占位符，将路由跳转的页面渲染到这里 -->
+<router-view></router-view>
+
+<!-- 使用vue-cli创建的项目标准写法好像是这样的 -->
+<router-link to="/">Home</router-link> |
+<router-link to="/about">About</router-link>
+<!-- 因为router-view标签里面没有放任何其它DOM元素和内容，所以可以简写为router-view/ -->
+<router-view/>
+```
+
+#### 嵌套路由
+
+> 当跳转到某个组件的时候，这个组件里还有多个router-link，点击还会在这个父组件里面在进行路由的跳转，这就是路由的嵌套
+
+```vue
+<!-- 配置嵌套路由 -->
+<script>
+const routes = [
+  {
+    path: '/about',
+    name: 'about',
+    component: AboutView,
+    // 通过children属性,来嵌套声明子级路由规则
+    children: [
+         /*
+         在配置子级路由的路径时,前面不需要加 /,只有父级路由需要加
+         默认子路由: 就是一打开某个组件的时候,默认显示这个组件里面的子路由
+         想要配置默认子路由,让子路由里面的某个子路由的path 为空即可
+         默认子路由和redirect重定向实现的效果是一样的,自己选择实现方式即可,
+         如果使用默认子路由的方法,那么在router-link那边的to属性,就不能写成 /about/tab1,
+         而是要写成 /about
+         */
+      { path: 'tab1', name: 'tab1', component: Tab1 },
+      { path: 'tab2', name: 'tab2', component: Tab2 }
+    ],
+    // 给about配置路由重定向,实现一打开about组件就显示tab1组件
+    redirect: '/about/tab1'
+  }
+]
+</script>
+
+<!-- 在About.vue组件里使用嵌套路由 -->
+<template>
+  <div class="about">
+    <h1>这是关于About Vue组件页面</h1>
+    <!-- 这是About组件里面嵌套的要跳转的路由link -->
+    <router-link to="/about/tab1">tab1</router-link> |
+    <router-link to="/about/tab2">tab2</router-link>
+    <router-view/>
+  </div>
+</template>
+```
+
+#### 动态路由
+
+> 动态路由是指把Hash地址中可变的部分定义为参数项，从而提高路由规则的复用性。比如id
+>
+> path: '/xxx/:xxx'，在vue组件中获取后面的参数使用 this.$route.params.xxx，也可以为路由开启props传参，更方便
+
+```js
+// router/index.js
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import HelloWorld from '@/components/HelloWorld'
+
+Vue.use(VueRouter)
+
+const routes = [
+    // 动态路由的配置方式,将可变的部分变成参数项目,例如name,id,配置方式是 /xxx路径/:参数的名称
+    // 例如将id作为可变的参数项就是 path: '/hello/:id',将name变成参数项就是: path: '/hello/:name'
+    // 可以为路由规则配置开启props传参,从而在跳转到页面时,更方便拿到参数
+  { path: '/hello/:name', name: 'HelloWorld', component: HelloWorld ,props: true}
+]
+
+const router = new VueRouter({
+  mode: 'history',
+  base: process.env.BASE_URL,
+  routes
+})
+
+export default router
+
+// HelloWorld.vue
+props: {
+    // 路由那边开启了props属性,这边就要设置对应props属性,名称与路由的动态参数一致
+    name: {
+      type: String,
+      default: ''
+    }
+}
+<!-- 这里的params的属性名具体根据路由那边配置的名称来使用,是name就是 params.name,是id就是 params.id -->
+<h2>{{ this.$route.params.name }}---- {{ name }}</h2>
+```
+

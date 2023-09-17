@@ -2087,6 +2087,8 @@ const routes = [
     // 动态路由的配置方式,将可变的部分变成参数项目,例如name,id,配置方式是 /xxx路径/:参数的名称
     // 例如将id作为可变的参数项就是 path: '/hello/:id',将name变成参数项就是: path: '/hello/:name'
     // 可以为路由规则配置开启props传参,从而在跳转到页面时,更方便拿到参数
+    // 在hash地址中 /: 后面的参数叫做"路径参数",?name='zs',?后面的参数叫做"查询参数",通过this.$route.query获得
+    // $route里面的fullPath是完整的路径，包括路径，路径参数和查询参数，如果都有就都包含在里面
   { path: '/hello/:name', name: 'HelloWorld', component: HelloWorld ,props: true}
 ]
 
@@ -2108,5 +2110,34 @@ props: {
 }
 <!-- 这里的params的属性名具体根据路由那边配置的名称来使用,是name就是 params.name,是id就是 params.id -->
 <h2>{{ this.$route.params.name }}---- {{ name }}</h2>
+```
+
+##### 声明式路由&编程式路由
+
+> a链接和router-link这两种方式的路由跳转都是声明式路由，还可以通过JS的方法来调用API实现路由的跳转就是编程式路由
+
+```vue
+<script>
+export default {
+  name: 'HomeView',
+  methods: {
+    toAbout() {
+      // 路由跳转到指定的hash地址并增加一条历史记录,就是可以后退
+      this.$router.push('/about/tab1');
+
+      // 路由跳转到指定的hash地址,并替换到之前的历史记录,不可以后退
+      this.$router.replace('/about/tab1');
+
+      // 可以在浏览历史中后退和前进,-1就是后退一次，-2就是后退两次,1就是前进一次,2就是两次
+      // 不管是后退还是前进,超过了次数上限,就原地不动
+      this.$router.go(-1);
+
+      // 一般都只会后退和前进一层页面,因此有两次简便的方法来前进和后退
+      this.$router.back();
+      this.$router.forward();
+    }
+  }
+}
+</script>
 ```
 

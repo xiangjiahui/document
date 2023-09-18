@@ -2093,6 +2093,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
+  // history模式的区别就是在浏览器上的路径没有了#,其它的方法一切都是照常使用，并且history模式其实兼容性差，还需要后端的配合
   mode: 'history',
   base: process.env.BASE_URL,
   routes
@@ -2139,5 +2140,38 @@ export default {
   }
 }
 </script>
+```
+
+
+
+#### 导航守卫
+
+> 导航守卫可以控制路由的访问权限
+
+```js
+// router/index.js
+// 全局前置守卫,路由跳转之前,就会触发这个beforeEach方法,来实现路由跳转的权限控制,或者说是路由的访问权限
+/**
+ * 组件A---->组件C (组件A跳转到组件C)
+ * 参数to:  是将要访问的路由的信息对象   C
+ * 参数from:  是将要离开的路由的信息对象   A
+ * 参数next:  是一个函数,调用next() 表示放行,允许这次路由导航
+ * 当用户拥有访问权限时,直接放行: next()
+ * 当用户没有访问权限时,强制其跳转到其它页面: next('/xxx')
+ * 当用户没有访问权限时,不允许跳转:  next(false)
+ */
+router.beforeEach((to, from, next) => {
+  if (to.path === '/about/tab1') {
+    const token = sessionStorage.getItem('token');
+    if (token) {
+      next();
+    }else {
+      alert('当前未登录,没有访问权限');
+      next('/login');
+    }
+  }else {
+    next();
+  }
+});
 ```
 

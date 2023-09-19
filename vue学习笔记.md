@@ -2175,3 +2175,78 @@ router.beforeEach((to, from, next) => {
 });
 ```
 
+
+
+## axios使用最终优化
+
+> 通过vue.prototype.$axios 的这种方式将axios挂载到vue上虽然方便使用，不要每个组件都导入axios
+>
+> 但是这种方式不利于接口的复用，如果有多个地方调用一个接口，就需要写很多次接口的调用。
+>
+> 并且如果要调多个不同服务器的不同接口，那么配置了axios.baseURL的方式只能调用一个服务器的接口
+>
+> 所以还有更好的方法去进行axios的使用的优化
+
+```js
+// 首先在src目录下，新建一个utils的文件夹，在utils文件夹下新建一个request.js文件
+// request.js，如果有多个服务器，那么可以建立多个不同的request的js文件，使用不同的命名即可
+import axios from 'axios';
+
+// 使用axios.create() 创建一个小的axios,一切功能和axios一样使用
+// 这样是为了实现接口的复用性,可以为多个不同的服务器创建一个小axios,并配置baseURL
+const request = axios.create({
+    baseURL: 'https://api.vvhan.com/api'
+});
+
+export default request
+```
+
+**提高接口的复用性**
+
+```js
+// 如果有一个接口在多个组件中被调用了，那么这种方法可以提高接口的复用性，而不用重复的去编写代码调用
+// src/api/xxx.js
+
+// 导入上面的为一个服务器建立的request
+import request from '@/utils/request.js';
+
+// 定义一个调用API并且有返回值的方法,再按需导出一个这个API方法
+export const getCityAPI = function (ip) {
+    // 通过request发起get请求，其实就是和axios一样的，返回一个Promise对象
+    return request.get('/getIpInfo',{
+        params: {
+            ip: ip
+        }
+    })
+}
+```
+
+**在组件中使用接口**
+
+```vue
+<!-- App.vue -->
+<script>
+// 按需导入API方法
+import { getCityAPI } from '@/api/cityAPI.js';
+
+export default {
+  name: 'App',
+  created() {
+    this.initCity();
+  },
+  data() {
+    return {
+      ip: '119.39.61.223'
+    }
+  },
+  methods: {
+    async initCity() {
+      // 调用方法，对返回的数据进行结构,方法返回了一个Promise对象，这里就用await接收，外面的方法要用async关键字修饰
+      const {data: res } = await getCityAPI(this.ip);
+      console.log(res);
+    }
+  }
+}
+</script>
+```
+

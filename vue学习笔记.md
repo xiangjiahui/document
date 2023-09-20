@@ -2250,3 +2250,63 @@ export default {
 </script>
 ```
 
+
+
+## 页面切换记住鼠标位置技巧
+
+> 如果进行了路由的切换，那么页面就会被创建和销毁，数据也会刷新，鼠标的位置也会刷新
+>
+> 所以需要一些技术来实现用户切换页面时，在切换回来时，鼠标和数据还是不变的
+
+```vue
+<!-- 首先将有切换的路由进行缓存 -->
+<keep-alive include="Home">
+    <router-view></router-view>
+</keep-alive>
+```
+
+```js
+// 在路由的index.js文件里配置路由的meta属性
+const router = new VueRouter({
+const routes = [
+    { path: '/',meta: {isRecord: true, top: 0}}
+]
+
+// 在定义一个核心的方法
+scrollBehavior(to,from,savedPosition) {
+    // 返回期望的鼠标滚动到哪个位置
+    if(savedPosition) {
+        return savedPosition;
+    }else {
+        return { x: 0, y: to.meta.to || 0}
+    }
+}
+})
+```
+
+```js
+// 在需要缓存的Home.vue组件中使用缓存的两个方法
+// 需要先安装再导入lodash，因为用到了里面的防抖方法
+import _ from 'lodash';
+let fn = null;
+activated() {
+    fn = this.recordTopHandler();
+    window.addEventListener('scroll',fn);
+},
+deactivated() {
+    window.removeEventListener('scroll',fn);
+},
+methods: {
+    recordTopHandler() {
+        // debounce是lodash的防抖方法
+        return _.debounce (
+        	() => {
+                this.$route.meta.top = window.scrollY
+            },
+            50,
+            { trailing: true }
+        )
+    }
+}
+```
+

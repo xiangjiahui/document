@@ -2278,7 +2278,7 @@ scrollBehavior(to,from,savedPosition) {
     if(savedPosition) {
         return savedPosition;
     }else {
-        return { x: 0, y: to.meta.to || 0}
+        return { x: 0, y: to.meta.top || 0}
     }
 }
 })

@@ -2310,3 +2310,38 @@ methods: {
 }
 ```
 
+## axios拦截器
+
+> 使用axios的拦截器可以实现在每次发请求之前，给数据里加上token实现身份认证的效果
+>
+> 也可以实现loading加载的效果
+
+### 使用
+
+#### 请求拦截器
+
+> 可以在请求拦截器中加上一些第三方组件库的load加载效果
+
+```js
+// 配置请求拦截器
+// axios.interceptors.request.use(成功的回调函数,失败的回调函数),一般失败的回调可以省略不写
+// 这里的defaultRequest是通过axios.create()方法创建的,也可以直接使用axios配置拦截器,根据实际情况来配置
+defaultRequest.interceptors.request.use(config => {
+    config.headers.Authorization = 'Bearer xxx';
+    return config;
+});
+```
+
+#### 响应拦截器
+
+> 在响应拦截器中，将第三方组件库的load效果关闭
+
+```js
+// 配置相应拦截器
+// 响应拦截器也是有个成功和失败的回调,也可以省略不写
+defaultRequest.interceptors.response.use(response => {
+    //todo
+    return response;
+})
+```
+

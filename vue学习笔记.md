@@ -2345,3 +2345,34 @@ defaultRequest.interceptors.response.use(response => {
 })
 ```
 
+
+
+## proxy跨域代理
+
+> 当前端和后端的http协议和端口都不相同时，就会产生跨域问题，前端无法访问到后端接口返回的数据
+>
+> 因此就需要用到proxy代理来解决跨域的问题，但是devServer.proxy提供的代理功能，只在开发调试阶段生效，
+>
+> 项目上线发布时，还是需要后端的接口开启CORS跨域资源共享
+
+```js
+// 首先将axios的请求根路径修改为vue项目的运行地址
+// 这种是普通的axios配置
+axios.defaults.baseURL = 'http://localhost:8080'
+// 这个是优化了之后的axios配置，地址是会变化的，只要配置成vue项目运行的地址即可
+import axios from 'axios';
+const defaultRequest = axios.create({
+    baseURL: 'http://localhost:8080'
+})
+export default defaultRequest
+
+// 在vue.config.js中添加代理
+module.exports = defineConfig({
+  // proxy跨域代理
+  devServer: {
+      // 这里的是真正请求的后端的路径
+    proxy: 'https://xxxx.xxx.xxx'
+  }
+})
+```
+

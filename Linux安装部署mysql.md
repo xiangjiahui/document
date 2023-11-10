@@ -42,7 +42,21 @@ mysql -u root -p
 #enter键直接进入mysql
 
 mysql>use mysql;
-mysql>update user password=password("设置的密码") where user="root";
+mysql>update user set password=password("设置的密码") where user="root";
+#例如 update user set password=password("XJH981117") where user="root";
+#刷新权限,必须的
+mysql>flush privileges;
+
+#查看ip地址
+#直接查看IP地址
+hostname -i
+#ip命令
+ip addr
+
+ifconfig
+
+#如果是阿里云的服务器还要开放端口
+iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 3306 -j ACCEPT
 ```
 
 ## 	4、设置远程访问

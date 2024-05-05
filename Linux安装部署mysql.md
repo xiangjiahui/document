@@ -3,8 +3,8 @@
 ## 	1、卸载原来的mysql
 
 ```shell
-#先检查是否有安装mysql
-rpm -qa | grep mysql
+#先检查是否有安装mysql或者maridb
+rpm -qa | grep mysql/db
 
 #如果没有则可免去此步骤
 
@@ -15,20 +15,40 @@ rpm -e 文件名
 ## 	2、下载安装mysql文件
 
 ```shell
-#下载
-wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
-
-#rpm安装
-rpm -ivh mysql-community-release-el7-5.noarch.rpm
-
-#yum安装mysql-server
-yum install -y mysql-server
-
+#前往官网下载Linux版本
+# https://downloads.mysql.com/archives/community/
+#新建目录
+mkdir /soft/mysql
+cd /soft/mysql
+mkdir mysql-5.7.3
+# 解压安装包到该目录下
+tar -xvf mysql-8xxx.el7.x86_64.rpm-bundle.tar -C mysql-5.7.3
+#安装mysql依赖的插件
+yum install openssl-devel
+yum -y install libaio perl net-tools
+yum install libncurses*
+yum install libtinfo*
+# 依次安装rpm包
+rpm -ivh mysql-community-common
+rpm -ivh mysql-community-libs
+rpm -ivh mysql-community-libs
+rpm -ivh mysql-community-devel
+rpm -ivh mysql-community-client
+rpm -ivh mysql-community-server
 #启动服务
-systemctl start mysqld.service
-
-#查看运行状态
-systemctl status mysql
+systemctl start mysqld
+#重启
+systemctl restart mysqld
+#关闭
+systemctl stop mysqld
+#开机自启
+systemctl enable mysqld
+#查看初始密码
+cat /var/log/mysqld.log
+#或者
+grep 'password' /var/log/mysqld.log
+#连接mysql,输入初始密码
+mysql -u root -p
 ```
 
 ## 	3、修改密码
@@ -44,6 +64,13 @@ mysql -u root -p
 mysql>use mysql;
 mysql>update user set password=password("设置的密码") where user="root";
 #例如 update user set password=password("XJH981117") where user="root";
+
+#或者这种方式修改密码
+ALTER  USER  'root'@'localhost'  IDENTIFIED BY 'xxx';
+
+#如果提示Your password does not satisfy the current policy requirements，就降低密码校验规则
+set global validate_password_policy = 0;
+
 #刷新权限,必须的
 mysql>flush privileges;
 
@@ -55,7 +82,7 @@ ip addr
 
 ifconfig
 
-#如果是阿里云的服务器还要开放端口
+#如果是阿里云或者华为其它的云服务器，需要区控制台开放相应的端口
 iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 3306 -j ACCEPT
 ```
 

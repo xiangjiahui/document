@@ -47,8 +47,8 @@ tar -zxvf nginx-1.12.2.tar.gz
 #进入nginx安装目录
 cd /
 cd nginx-1.12.2
-#执行命令
-./configure
+#执行命令,nginx支持ssl需要这三个模块,如果nginx已安装,则需要./configure --prefix=/usr/local/nginx ...
+./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-http_v2_module
 #执行make命令
 make && make install
 ```

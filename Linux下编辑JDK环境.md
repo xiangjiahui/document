@@ -52,7 +52,7 @@ export PATH=$PATH:${JAVA_PATH}
 ### 	4.4、重启profile文件
 
 ```shell
-source etc/profile
+source /etc/profile
 ```
 
 ### 	4.5 查看是否安装成功

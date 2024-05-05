@@ -50,3 +50,78 @@ cd /usr/local/bin
 #如果有redis的一些命令则说明安装成功
 ```
 
+## 6、启动redis
+
+````shell
+cd /soft/redis/redis-7.0.2/src
+#直接启动
+./redis-server
+
+#指定配置文件启动
+./redis-server ../redis.conf
+
+#以脚本启动
+#!/bin/sh
+# chkconfig:   2345 90 10
+# Simple Redis init.d script conceived to work on Linux systems
+# as it does use of the /proc filesystem.
+ 
+#redis服务器监听的端口
+REDISPORT=6379
+ 
+#服务端所处位置
+EXEC=/usr/local/bin/redis-server
+ 
+#客户端位置
+CLIEXEC=/usr/local/bin/redis-cli
+ 
+#redis的PID文件位置，需要修改
+PIDFILE=/var/run/redis_${REDISPORT}.pid
+ 
+#redis的配置文件位置，需将${REDISPORT}修改为文件名，配置文件路径根据实际情况来
+CONF="/etc/redis/${REDISPORT}.conf"
+ 
+case "$1" in
+    start)
+        if [ -f $PIDFILE ]
+        then
+                echo "$PIDFILE exists, process is already running or crashed"
+        else
+                echo "Starting Redis server..."
+                $EXEC $CONF
+        fi
+        ;;
+    stop)
+        if [ ! -f $PIDFILE ]
+        then
+                echo "$PIDFILE does not exist, process is not running"
+        else
+                PID=$(cat $PIDFILE)
+                echo "Stopping ..."
+                $CLIEXEC -p $REDISPORT shutdown
+                while [ -x /proc/${PID} ]
+                do
+                    echo "Waiting for Redis to shutdown ..."
+                    sleep 1
+                done
+                echo "Redis stopped"
+        fi
+        ;;
+    *)
+        echo "Please use start or stop as first argument"
+        ;;
+esac
+
+
+# 将启动脚本复制到/etc/init.d目录下，本例将启动脚本命名为redisd（通常都以d结尾表示是后台自启动服务）
+# 根据自己的情况更改
+cp redis_init_script /etc/init.d/redisd
+
+#设置为开机自启动服务器
+chkconfig redisd on
+#打开服务
+service redisd start
+#关闭服务
+service redisd stop
+````
+

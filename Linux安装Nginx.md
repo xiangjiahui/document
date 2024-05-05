@@ -24,6 +24,11 @@ yum install -y gcc gcc-c++
 #执行完成之后,再次执行make命令
 make && make install
 
+#判断是否安装成功，如果出现类似路径/usr/bin/pcregrep，则代表成功
+which pcregrep
+#或者，如果出现pcre-8.32-17.el7.x86_64，则成功
+rpm -qa pcre
+
 #在安装其它的依赖openssl和zlib
 yum -y install make zlib zlib-devel gcc-c++ libtool openssl openssl-devel
 ```
@@ -51,6 +56,23 @@ cd nginx-1.12.2
 ./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-http_v2_module
 #执行make命令
 make && make install
+
+#如果出现如下报错
+src/os/unix/ngx_user.c: In function ‘ngx_libc_crypt’:
+#src/os/unix/ngx_user.c:26:7: error: ‘struct crypt_data’ has no member named‘current_salt’cd.current_salt[0] = ~salt[0];
+
+#修改文件
+vi  src/os/unix/ngx_user.c
+#将26行 **cd.current_salt[0] = ~salt[0];**注释掉
+
+#如果出现以下错误，很多类似错误
+code->code = (ngx_http_script_code_pt) ngx_http_script_copy_len_code;
+code->code = (ngx_http_script_code_pt) ngx_http_script_copy_var_len_code;
+
+#进入objs目录下修改Makefile文件
+CFLAGS =  -pipe  -O -W -Wall -Wpointer-arith -Wno-unused-parameter - Werror -g
+#将 - Werror 去掉
+# 出现这些错误的主要原因是因为服务器版本过高，和nginx版本不兼容。换个高版本的nginx也可以解决。
 ```
 
 ## 4、启动nginx服务
@@ -133,6 +155,13 @@ server {
     #charset koi8-r;
     #access_log  /var/log/nginx/host.access.log  main;
     # = 代表精确匹配路径, ^~ 代表匹配以什么开头, ~ 代表按正则表达式匹配,区分大小写,~*代表按正则表达式匹配,不区分大小写
+    
+    location / {
+            try_files $uri $uri/ /index.html;
+            #root   /usr/local/nginx/html;
+            root   html/dist;
+            index  index.html index.htm;
+        }
 
 	location = /login {
             proxy_set_header Host $host;

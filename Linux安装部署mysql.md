@@ -92,3 +92,52 @@ iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 3306 -j ACCEPT
 grant all privileges on *.* to 'root'@'%' identified by '密码' with grant option;
 ```
 
+
+
+# 安装部署方法2
+
+```shell
+#首先检查是否已有安装mysql或其它db
+rpm -qa | grep sql/db
+#如果有，则删除
+rpm -e --nodeps sql/db
+
+#安装mysql
+wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+rpm -ivh mysql-community-release-el7-5.noarch.rpm
+yum install mysql-server
+
+#权限设置
+chown -R mysql:mysql /var/lib/mysql/
+
+#初始化mysql
+mysqld --initialize
+
+#验证mysql，如果没有出现对应的版本信息，说明未安装成功
+mysqladmin --version
+
+#启动mysql
+systemctl start mysqld
+
+#开机自启
+systemctl enable mysqld
+
+#使用mysql，初始安装的mysql默认没有密码
+mysql
+
+#设置密码
+mysql>use mysql;
+mysql>update user set password=password("设置的密码") where user="root";
+#例如 update user set password=password("XJH981117") where user="root";
+
+#刷新权限,必须的
+mysql>flush privileges;
+
+#设置远程访问权限
+mysql>grant all privileges on *.* to 'root'@'%' identified by '密码' with grant option;
+
+#开放3306端口
+firewall-cmd --zone=public --add-port=8080/tcp --permanent
+
+#重启防火墙
+firewall-cmd --reload

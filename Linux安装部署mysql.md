@@ -141,3 +141,31 @@ firewall-cmd --zone=public --add-port=8080/tcp --permanent
 
 #重启防火墙
 firewall-cmd --reload
+
+```
+
+
+
+# 修改MySQL端口
+
+```bash
+#一般配置文件默认是在/etc/my.cnf
+vim /etc/my.cnf
+#添加如下配置
+#port=端口号
+port=3820
+
+#修改之后会无法启动，这是由于SELinux的问题造成的。由于 SELinux 已启用，且其默认规则可能限制 MySQL 使用指定端口，因此需要配置 SELinux 以允许 MySQL 正常运行
+#查看版本信息
+cat /etc/os-release
+#如果是Centos7版本
+#安装 policycoreutils-python 包
+yum install policycoreutils-python -y
+
+# 确认安装成功，如果能看到相关帮助信息，说明安装成功
+semanage --help
+
+#重启mysql
+systemctl restart mysql
+```
+

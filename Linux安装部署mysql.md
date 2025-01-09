@@ -159,11 +159,26 @@ port=3820
 #查看版本信息
 cat /etc/os-release
 #如果是Centos7版本
-#安装 policycoreutils-python 包
+#安装 policycoreutils-python 包,yum install policycoreutils-python-utils   # CentOS/RHEL 7+
 yum install policycoreutils-python -y
 
 # 确认安装成功，如果能看到相关帮助信息，说明安装成功
 semanage --help
+
+#确保 SELinux 已启用并运行,如果状态是 Enforcing 或 Permissive，说明 SELinux 已启用
+sestatus
+
+#检查当前 MySQL 允许的端口
+semanage port -l | grep mysqld_port_t
+
+#添加新的 MySQL 端口
+semanage port -a -t mysqld_port_t -p tcp 3307
+
+#如果端口已经存在并需要修改，可以使用以下命令替换
+sudo semanage port -m -t mysqld_port_t -p tcp 3307
+
+#再次运行以下命令，确认新端口已被添加
+semanage port -l | grep mysqld_port_t
 
 #重启mysql
 systemctl restart mysql

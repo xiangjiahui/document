@@ -290,3 +290,73 @@ server {
 }
 ```
 
+
+
+## 11、将nginx加入systemctl管理
+
+>将nginx加入systemctl管理，便于启动，也可以设置服务器开机自启
+
+```shell
+#每个服务创建一个对应的Systemd服务单元文件。这些文件通常位于/etc/systemd/system/目录下，并且以.service结尾
+cd /etc/systemd/system
+touch nginx.service
+#赋予权限
+chmod 755
+
+#nginx.service文件内容
+[Unit]
+Description=A high performance web server and a reverse proxy server nginx
+After=network.target remote-fs.target nss-lookup.target
+
+[Service]
+#forking是以守护进程启动
+Type=forking
+PIDFile=/var/run/nginx.pid
+
+#/usr/local/nginx/sbin/nginx 这里根据实际的路径来写
+
+ExecStartPre=/usr/local/nginx/sbin/nginx -t -q -g 'daemon on; master_process on;'
+ExecStart=/usr/local/nginx/sbin/nginx -g 'daemon on; master_process on;'
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+
+#重新加载系统配置
+systemctl daemon-reload
+
+#启动
+systemctl start nginx.service
+
+#如果报错，查看详细的报错信息
+journalctl -u nginx.service
+```
+
+
+
+## 12、将nacos加入systemctl管理
+
+```shell
+[Unit]
+Description=Nacos Server
+After=syslog.target network.target
+
+[Service]
+Type=forking
+User=root
+Group=root
+Environment="JAVA_HOME=/usr/java/jdk1.8.0_131"
+ExecStart=/nacos/nacos/bin/startup.sh -m standalone
+ExecStop=/nacos/nacos/bin/shutdown.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+#其它的步骤与上述的nginx同理
+```
+
+
+

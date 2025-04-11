@@ -309,6 +309,8 @@ Maven版本选择之前配置好的maven。
 
 ```shell
 #!/bin/bash
+#首先执行下面的语句，就算给jenkins赋予了权限，可能也无法在服务器上上传jar包
+cp /var/lib/jenkins/workspace/yourpath/target/xxx.jar /app/xxx/
 APP_NAME=weblog-web-0.0.1-SNAPSHOT.jar
 
 pid=`ps -ef | grep $APP_NAME | grep -v grep|awk '{print $2}'`
@@ -343,7 +345,32 @@ else
 fi
 ```
 
+再在Build Steps中，增加一个Execute shell的构建选项，这是为了在执行maven打包前，先执行一些shell命令，确保打包能正常执行下去。以下是脚本内容。
+```shell
+#!/bin/bash
 
+# 设置 Maven 本地仓库路径（可选，根据需要调整）
+#export MAVEN_OPTS="-Dmaven.repo.local=/path/to/your/maven/repository"
+
+# 修改目录权限（确保 Jenkins 用户有写入权限）
+echo "Granting permissions to Maven repository..."
+chown -R jenkins:jenkins /maven/repository/*
+echo "Granting permissions succeeded!"
+
+# 执行 Maven install,执行这个是因为如果是微服务项目，一个子模块会需要依赖微服务中其他的模块，所以需要先执行install，将所需的依赖全部安装好。
+# /maven/apach-maven-3.6.3/bin/mvn 以这种方式执行maven命令是因为，即使设置了jenkins全局配置的环境，并且也在服务器中有权限，但是在构建时依然会报错，mvn未找到命令。
+echo "Starting Maven install build..."
+/maven/apach-maven-3.6.3/bin/mvn clean install -DskipTests
+echo "Maven install build succeeded!"
+
+# 检查构建结果
+if [ $? -eq 0 ]; then
+  echo "Build succeeded!"
+else
+  echo "Build failed! Exiting..."
+  exit 1
+fi
+```
 
 
 
